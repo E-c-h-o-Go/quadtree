@@ -61,15 +61,15 @@ function QuadTree.new(lvl, x, y, w, h)
         end
     end
 
-    function self:insert(nx, ny)
+    function self:insert(obj, nx, ny)
         -- If the node is already split add it to one of its children.
         if nodes then
             local index = determineIndex(nx, ny);
-            nodes[index]:insert(nx, ny);
+            nodes[index]:insert(obj, nx, ny);
             return;
         end
 
-        objects[#objects + 1] = { nx, ny };
+        objects[#objects + 1] = obj;
 
         -- If the current node is not yet split and carries the maximum
         -- amount of objects, split it and redistribute the children.
@@ -78,8 +78,8 @@ function QuadTree.new(lvl, x, y, w, h)
                 self:split();
 
                 for i = 1, #objects do
-                    local index = determineIndex(objects[i][1], objects[i][2]);
-                    nodes[index]:insert(objects[i][1], objects[i][2]);
+                    local index = determineIndex(objects[i]:getX(), objects[i]:getY());
+                    nodes[index]:insert(objects[i], objects[i]:getX(), objects[i]:getY());
                 end
                 objects = {};
             end
