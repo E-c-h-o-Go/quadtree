@@ -7,17 +7,16 @@ local NE = 2;
 local SW = 3;
 local SE = 4;
 
-function QuadTree.new(lvl, bounds)
+function QuadTree.new(lvl, x, y, w, h)
     local self = {};
 
     local level = lvl;
-    local bounds = bounds;
     local objects = {};
     local nodes;
 
     local function determineIndex(nx, ny)
-        local midX = bounds.x + (bounds.w * 0.5);
-        local midY = bounds.y + (bounds.h * 0.5);
+        local midX = x + (w * 0.5);
+        local midY = y + (h * 0.5);
 
         -- Check if the object fits in one of the four quadrants.
         if nx <= midX and ny <= midY then
@@ -41,21 +40,21 @@ function QuadTree.new(lvl, bounds)
     end
 
     function self:split()
-        local nw = bounds.w * 0.5;
-        local nh = bounds.h * 0.5;
-        local nx = bounds.x;
-        local ny = bounds.y;
+        local nw = w * 0.5;
+        local nh = h * 0.5;
+        local nx = x;
+        local ny = y;
 
         nodes = {};
-        nodes[NW] = QuadTree.new(level + 1, { x = nx, y = ny, w = nw, h = nh });
-        nodes[NE] = QuadTree.new(level + 1, { x = nx + nw, y = ny, w = nw, h = nh });
-        nodes[SW] = QuadTree.new(level + 1, { x = nx, y = ny + nh, w = nw, h = nh });
-        nodes[SE] = QuadTree.new(level + 1, { x = nx + nw, y = ny + nh, w = nw, h = nh });
+        nodes[NW] = QuadTree.new(level + 1, nx, ny, nw, nh);
+        nodes[NE] = QuadTree.new(level + 1, nx + nw, ny, nw, nh);
+        nodes[SW] = QuadTree.new(level + 1, nx, ny + nh, nw, nh);
+        nodes[SE] = QuadTree.new(level + 1, nx + nw, ny + nh, nw, nh);
     end
 
     function self:draw()
-        love.graphics.rectangle('line', bounds.x, bounds.y, bounds.w, bounds.h);
-        love.graphics.print(#objects == 0 and '' or #objects, bounds.x + 1, bounds.y + 1);
+        love.graphics.rectangle('line', x, y, w, h);
+        love.graphics.print(#objects == 0 and '' or #objects, x + 1, y + 1);
         if nodes then
             for i = 1, #nodes do
                 nodes[i]:draw();
@@ -98,7 +97,7 @@ function QuadTree.new(lvl, bounds)
             local index = determineIndex(nx, ny);
             return nodes[index]:retrieve(nx, ny);
         else
-            return objects, bounds;
+            return objects;
         end
     end
 
