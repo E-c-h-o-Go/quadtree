@@ -1,6 +1,6 @@
 local QuadTree = {};
 
-local MAX_LEVELS = 8;
+local MAX_LEVELS = 5;
 local MAX_OBJECTS = 8;
 local NW = 1;
 local NE = 2;
