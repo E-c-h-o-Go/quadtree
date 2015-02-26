@@ -15,6 +15,26 @@ function QuadTree.new(lvl, bounds)
     local objects = {};
     local nodes;
 
+    local function determineIndex(nx, ny)
+        local midX = bounds.x + (bounds.w * 0.5);
+        local midY = bounds.y + (bounds.h * 0.5);
+
+        -- Check if the object fits in one of the four quadrants.
+        if nx <= midX and ny <= midY then
+            -- top left
+            return NW;
+        elseif nx <= midX and ny > midY then
+            -- bottom left
+            return SW;
+        elseif nx > midX and ny <= midY then
+            -- top right
+            return NE;
+        elseif nx > midX and ny > midY then
+            -- bottom right
+            return SE;
+        end
+    end
+
     function self:clear()
         objects = {};
         nodes = nil;
@@ -48,30 +68,10 @@ function QuadTree.new(lvl, bounds)
         end
     end
 
-    function self:getIndex(nx, ny)
-        local midX = bounds.x + (bounds.w * 0.5);
-        local midY = bounds.y + (bounds.h * 0.5);
-
-        -- Check if the object fits in one of the four quadrants.
-        if nx <= midX and ny <= midY then
-            -- top left
-            return NW;
-        elseif nx <= midX and ny > midY then
-            -- bottom left
-            return SW;
-        elseif nx > midX and ny <= midY then
-            -- top right
-            return NE;
-        elseif nx > midX and ny > midY then
-            -- bottom right
-            return SE;
-        end
-    end
-
     function self:insert(nx, ny)
         -- If the node is already split add it to one of its children.
         if nodes then
-            local index = self:getIndex(nx, ny);
+            local index = determineIndex(nx, ny);
             nodes[index]:insert(nx, ny);
             return;
         end
@@ -85,7 +85,7 @@ function QuadTree.new(lvl, bounds)
                 self:split();
 
                 for i = 1, #objects do
-                    local index = self:getIndex(objects[i][1], objects[i][2]);
+                    local index = determineIndex(objects[i][1], objects[i][2]);
                     nodes[index]:insert(objects[i][1], objects[i][2]);
                 end
                 objects = {};
@@ -95,7 +95,7 @@ function QuadTree.new(lvl, bounds)
 
     function self:retrieve(nx, ny)
         if nodes then
-            local index = self:getIndex(nx, ny);
+            local index = determineIndex(nx, ny);
             return nodes[index]:retrieve(nx, ny);
         else
             return objects, bounds;
