@@ -60,11 +60,6 @@ function QuadTree.new(lvl, x, y, w, h)
                 nodes[i]:draw();
             end
         end
-        for i = 1, #objects do
-            love.graphics.setColor(255, 0, 0);
-            love.graphics.circle('fill', objects[i][1], objects[i][2], 2, 20);
-            love.graphics.setColor(255, 255, 255);
-        end
     end
 
     function self:insert(nx, ny)
