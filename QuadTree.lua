@@ -11,13 +11,12 @@ function QuadTree.new(lvl, x, y, w, h)
     local self = {};
 
     local level = lvl;
+    local midX = x + (w * 0.5);
+    local midY = y + (h * 0.5);
     local objects = {};
     local nodes;
 
     local function determineIndex(nx, ny)
-        local midX = x + (w * 0.5);
-        local midY = y + (h * 0.5);
-
         -- Check if the object fits in one of the four quadrants.
         if nx <= midX and ny <= midY then
             -- top left
