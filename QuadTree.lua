@@ -22,6 +22,8 @@ function QuadTree.new(lvl, x, y, w, h)
     local midX = x + (w * 0.5);
     local midY = y + (h * 0.5);
     local objects = {};
+
+    local split = false;
     local nodes;
 
     -- ------------------------------------------------
@@ -45,17 +47,20 @@ function QuadTree.new(lvl, x, y, w, h)
         end
     end
 
-    local function split()
+    local function divide()
         local nw = w * 0.5;
         local nh = h * 0.5;
         local nx = x;
         local ny = y;
 
-        nodes = {};
-        nodes[NW] = QuadTree.new(level + 1, nx, ny, nw, nh);
-        nodes[NE] = QuadTree.new(level + 1, nx + nw, ny, nw, nh);
-        nodes[SW] = QuadTree.new(level + 1, nx, ny + nh, nw, nh);
-        nodes[SE] = QuadTree.new(level + 1, nx + nw, ny + nh, nw, nh);
+        if not nodes then
+            nodes = {};
+            nodes[NW] = QuadTree.new(level + 1, nx, ny, nw, nh);
+            nodes[NE] = QuadTree.new(level + 1, nx + nw, ny, nw, nh);
+            nodes[SW] = QuadTree.new(level + 1, nx, ny + nh, nw, nh);
+            nodes[SE] = QuadTree.new(level + 1, nx + nw, ny + nh, nw, nh);
+        end
+        split = true;
     end
 
     -- ------------------------------------------------
@@ -65,7 +70,7 @@ function QuadTree.new(lvl, x, y, w, h)
     function self:draw()
         love.graphics.rectangle('line', x, y, w, h);
         love.graphics.print(#objects == 0 and '' or #objects, x + 1, y + 1);
-        if nodes then
+        if split then
             for i = 1, #nodes do
                 nodes[i]:draw();
             end
@@ -73,10 +78,11 @@ function QuadTree.new(lvl, x, y, w, h)
     end
 
     function self:clear()
-        if nodes then
+        if split then
             for i = 1, #nodes do
                 nodes[i]:clear();
             end
+            split = false;
         else
             for i = 1, #objects do
                 objects[i] = nil;
@@ -86,7 +92,7 @@ function QuadTree.new(lvl, x, y, w, h)
 
     function self:insert(obj, nx, ny)
         -- If the node is already split add it to one of its children.
-        if nodes then
+        if split then
             local index = determineIndex(nx, ny);
             nodes[index]:insert(obj, nx, ny);
             return;
@@ -98,7 +104,7 @@ function QuadTree.new(lvl, x, y, w, h)
         -- amount of objects, split it and redistribute the children.
         if #objects > MAX_OBJECTS then
             if level < MAX_LEVELS then
-                split();
+                divide();
 
                 for i = 1, #objects do
                     local index = determineIndex(objects[i]:getX(), objects[i]:getY());
@@ -110,12 +116,11 @@ function QuadTree.new(lvl, x, y, w, h)
     end
 
     function self:retrieve(nx, ny)
-        if nodes then
+        if split then
             local index = determineIndex(nx, ny);
             return nodes[index]:retrieve(nx, ny);
-        else
-            return objects;
         end
+        return objects;
     end
 
     return self;
