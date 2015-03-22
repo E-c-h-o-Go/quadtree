@@ -31,18 +31,13 @@ function QuadTree.new(lvl, x, y, w, h)
     -- ------------------------------------------------
 
     local function determineIndex(nx, ny)
-        -- Check if the object fits in one of the four quadrants.
         if nx <= midX and ny <= midY then
-            -- top left
             return NW;
         elseif nx <= midX and ny > midY then
-            -- bottom left
             return SW;
         elseif nx > midX and ny <= midY then
-            -- top right
             return NE;
         elseif nx > midX and ny > midY then
-            -- bottom right
             return SE;
         end
     end
