@@ -30,6 +30,12 @@ function QuadTree.new(lvl, x, y, w, h)
     -- Private Functions
     -- ------------------------------------------------
 
+    ---
+    -- Determines in which subnode the given coordinates are
+    -- contained and returns the corresponding index.
+    -- @param nx
+    -- @param ny
+    --
     local function determineIndex(nx, ny)
         if nx <= midX and ny <= midY then
             return NW;
@@ -42,6 +48,10 @@ function QuadTree.new(lvl, x, y, w, h)
         end
     end
 
+    ----
+    -- Divides the current node and creates four subnodes
+    -- if they haven't been created yet.
+    --
     local function divide()
         local nw = w * 0.5;
         local nh = h * 0.5;
@@ -62,6 +72,10 @@ function QuadTree.new(lvl, x, y, w, h)
     -- Public Functions
     -- ------------------------------------------------
 
+    ---
+    -- Draws the quadtree for debug purposes. Can have a negative
+    -- impact on FPS so use with caution.
+    --
     function self:debugDraw()
         love.graphics.rectangle('line', x, y, w, h);
         love.graphics.print(#objects == 0 and '' or #objects, x + 1, y + 1);
@@ -72,6 +86,9 @@ function QuadTree.new(lvl, x, y, w, h)
         end
     end
 
+    ---
+    -- Clears all references to objects stored in the node.
+    --
     function self:clear()
         if split then
             for i = 1, #nodes do
@@ -85,6 +102,16 @@ function QuadTree.new(lvl, x, y, w, h)
         end
     end
 
+    ---
+    -- Inserts a new object into the node. If the node is already split,
+    -- the object is pushed to one of the subnodes. If it hasn't been split
+    -- yet the object will be added to the current level. The node is split,
+    -- when the amount of objects is bigger than the maximum of allowed
+    -- nodes.
+    -- @param obj
+    -- @param nx
+    -- @param ny
+    --
     function self:insert(obj, nx, ny)
         -- If the node is already split add it to one of its children.
         if split then
@@ -92,10 +119,12 @@ function QuadTree.new(lvl, x, y, w, h)
             return;
         end
 
+        -- If the node isn't split add the object to its pool.
         objects[#objects + 1] = obj;
 
-        -- If the current node is not yet split and carries the maximum
-        -- amount of objects, split it and redistribute the children.
+        -- If the amount of objects surpasses the maximum amount allowed,
+        -- the node is split and the objects are redistributed among the
+        -- subnodes.
         if #objects > MAX_OBJECTS then
             if level < MAX_LEVELS then
                 divide();
@@ -110,6 +139,11 @@ function QuadTree.new(lvl, x, y, w, h)
         end
     end
 
+    ---
+    -- Retrieves all objects in the same node as the given coordinates.
+    -- @param nx
+    -- @param ny
+    --
     function self:retrieve(nx, ny)
         if split then
             return nodes[determineIndex(nx, ny)]:retrieve(nx, ny);
