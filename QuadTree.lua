@@ -38,7 +38,7 @@ function QuadTree.new(lvl, x, y, w, h)
         nodes = nil;
     end
 
-    function self:split()
+    local function split()
         local nw = w * 0.5;
         local nh = h * 0.5;
         local nx = x;
@@ -75,7 +75,7 @@ function QuadTree.new(lvl, x, y, w, h)
         -- amount of objects, split it and redistribute the children.
         if #objects > MAX_OBJECTS then
             if level < MAX_LEVELS then
-                self:split();
+                split();
 
                 for i = 1, #objects do
                     local index = determineIndex(objects[i]:getX(), objects[i]:getY());
