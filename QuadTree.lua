@@ -73,8 +73,15 @@ function QuadTree.new(lvl, x, y, w, h)
     end
 
     function self:clear()
-        objects = {};
-        nodes = nil;
+        if nodes then
+            for i = 1, #nodes do
+                nodes[i]:clear();
+            end
+        else
+            for i = 1, #objects do
+                objects[i] = nil;
+            end
+        end
     end
 
     function self:insert(obj, nx, ny)
