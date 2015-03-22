@@ -1,11 +1,19 @@
 local QuadTree = {};
 
+-- ------------------------------------------------
+-- Constants
+-- ------------------------------------------------
+
 local MAX_LEVELS = 5;
 local MAX_OBJECTS = 8;
 local NW = 1;
 local NE = 2;
 local SW = 3;
 local SE = 4;
+
+-- ------------------------------------------------
+-- Constructor
+-- ------------------------------------------------
 
 function QuadTree.new(lvl, x, y, w, h)
     local self = {};
@@ -15,6 +23,10 @@ function QuadTree.new(lvl, x, y, w, h)
     local midY = y + (h * 0.5);
     local objects = {};
     local nodes;
+
+    -- ------------------------------------------------
+    -- Private Functions
+    -- ------------------------------------------------
 
     local function determineIndex(nx, ny)
         -- Check if the object fits in one of the four quadrants.
@@ -33,11 +45,6 @@ function QuadTree.new(lvl, x, y, w, h)
         end
     end
 
-    function self:clear()
-        objects = {};
-        nodes = nil;
-    end
-
     local function split()
         local nw = w * 0.5;
         local nh = h * 0.5;
@@ -51,6 +58,10 @@ function QuadTree.new(lvl, x, y, w, h)
         nodes[SE] = QuadTree.new(level + 1, nx + nw, ny + nh, nw, nh);
     end
 
+    -- ------------------------------------------------
+    -- Public Functions
+    -- ------------------------------------------------
+
     function self:draw()
         love.graphics.rectangle('line', x, y, w, h);
         love.graphics.print(#objects == 0 and '' or #objects, x + 1, y + 1);
@@ -59,6 +70,11 @@ function QuadTree.new(lvl, x, y, w, h)
                 nodes[i]:draw();
             end
         end
+    end
+
+    function self:clear()
+        objects = {};
+        nodes = nil;
     end
 
     function self:insert(obj, nx, ny)
