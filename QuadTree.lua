@@ -174,6 +174,24 @@ function QuadTree.new(lvl, x, y, w, h)
         return objects;
     end
 
+    ---
+    -- Sets the dimensions of the node.
+    -- @param nw
+    -- @param nh
+    --
+    function self:updateDimensions(nx, ny, nw, nh)
+        x, y, w, h = nx, ny, nw, nh;
+        mx, my = x + (w * 0.5), y + (h * 0.5);
+
+        local nx, ny, nw, nh = x, y, w * 0.5, h * 0.5;
+        if nodes then
+            nodes[NW]:updateDimensions(nx, ny, nw, nh);
+            nodes[NE]:updateDimensions(nx + nw, ny, nw, nh);
+            nodes[SW]:updateDimensions(nx, ny + nh, nw, nh);
+            nodes[SE]:updateDimensions(nx + nw, ny + nh, nw, nh);
+        end
+    end
+
     return self;
 end
 
