@@ -30,12 +30,17 @@ local QuadTree = {
 -- Constants
 -- ------------------------------------------------
 
-local MAX_LEVELS = 5;
-local MAX_OBJECTS = 8;
 local NW = 1;
 local NE = 2;
 local SW = 3;
 local SE = 4;
+
+-- ------------------------------------------------
+-- Local Variables
+-- ------------------------------------------------
+
+local maxLevels = 5;
+local maxObjects = 8;
 
 -- ------------------------------------------------
 -- Constructor
@@ -148,8 +153,8 @@ function QuadTree.new(lvl, x, y, w, h)
         -- If the amount of objects surpasses the maximum amount allowed,
         -- the node is split and the objects are redistributed among the
         -- subnodes.
-        if #objects > MAX_OBJECTS then
-            if level < MAX_LEVELS then
+        if #objects > maxObjects then
+            if level < maxLevels then
                 divide(x, y, w, h);
 
                 local ox, oy;
@@ -193,6 +198,39 @@ function QuadTree.new(lvl, x, y, w, h)
     end
 
     return self;
+end
+
+-- ------------------------------------------------
+-- Setters
+-- ------------------------------------------------
+
+---
+-- Set the maximum depth of the tree.
+-- @param nmax
+--
+function QuadTree.setMaxLevel(nmax)
+    maxLevels = nmax;
+end
+
+---
+-- Set the maximum amount of objects allowed in
+-- the same node.
+-- @param nmax
+--
+function QuadTree.setMaxObjects(nmax)
+    maxObjects = nmax;
+end
+
+-- ------------------------------------------------
+-- Getters
+-- ------------------------------------------------
+
+function QuadTree.getMaxLevel()
+    return maxLevels;
+end
+
+function QuadTree.getMaxObjects()
+    return maxObjects;
 end
 
 return QuadTree;
