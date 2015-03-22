@@ -155,8 +155,8 @@ function QuadTree.new(lvl, x, y, w, h)
                 for i = 1, #objects do
                     ox, oy = objects[i]:getPosition();
                     nodes[determineIndex(ox, oy)]:insert(objects[i], ox, oy);
+                    objects[i] = nil;
                 end
-                objects = {};
             end
         end
     end
