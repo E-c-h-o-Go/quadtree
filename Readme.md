@@ -1,5 +1,5 @@
 # QuadTree
-
+A QuadTree implementation in pure Lua.
 
 ## License
 Copyright (C) 2015 by Robert Machmer
