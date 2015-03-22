@@ -67,7 +67,7 @@ function QuadTree.new(lvl, x, y, w, h)
     -- Public Functions
     -- ------------------------------------------------
 
-    function self:draw()
+    function self:debugDraw()
         love.graphics.rectangle('line', x, y, w, h);
         love.graphics.print(#objects == 0 and '' or #objects, x + 1, y + 1);
         if split then
