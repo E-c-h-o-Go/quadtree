@@ -81,7 +81,7 @@ function QuadTree.new(lvl, x, y, w, h)
         love.graphics.print(#objects == 0 and '' or #objects, x + 1, y + 1);
         if split then
             for i = 1, #nodes do
-                nodes[i]:draw();
+                nodes[i]:debugDraw();
             end
         end
     end
