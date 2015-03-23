@@ -21,7 +21,7 @@
 --==================================================================================================
 
 local QuadTree = {
-    _VERSION = '0019',
+    _VERSION = '0026',
     _DESCRIPTION = 'A QuadTree implementation in pure Lua.',
     _URL = 'https://bitbucket.org/rmcode/quadtree',
 };
