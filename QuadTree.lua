@@ -105,6 +105,7 @@ function QuadTree.new(lvl, x, y, w, h)
     -- impact on FPS so use with caution.
     --
     function self:debugDraw()
+        love.graphics.setColor(255, 255, 255, 50);
         love.graphics.rectangle('line', x, y, w, h);
         love.graphics.print(#objects == 0 and '' or #objects, x + 1, y + 1);
         if split then
@@ -112,6 +113,7 @@ function QuadTree.new(lvl, x, y, w, h)
                 nodes[i]:debugDraw();
             end
         end
+        love.graphics.setColor(255, 255, 255, 255);
     end
 
     ---
