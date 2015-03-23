@@ -21,7 +21,7 @@
 --==================================================================================================
 
 local QuadTree = {
-    _VERSION = '0019',
+    _VERSION = '0026',
     _DESCRIPTION = 'A QuadTree implementation in pure Lua.',
     _URL = 'https://bitbucket.org/rmcode/quadtree',
 };
@@ -30,12 +30,17 @@ local QuadTree = {
 -- Constants
 -- ------------------------------------------------
 
-local MAX_LEVELS = 5;
-local MAX_OBJECTS = 8;
 local NW = 1;
 local NE = 2;
 local SW = 3;
 local SE = 4;
+
+-- ------------------------------------------------
+-- Local Variables
+-- ------------------------------------------------
+
+local maxLevels = 5;
+local maxObjects = 8;
 
 -- ------------------------------------------------
 -- Constructor
@@ -45,8 +50,7 @@ function QuadTree.new(lvl, x, y, w, h)
     local self = {};
 
     local level = lvl;
-    local midX = x + (w * 0.5);
-    local midY = y + (h * 0.5);
+    local mx, my = x + (w * 0.5), y + (h * 0.5);
     local objects = {};
 
     local split = false;
@@ -59,31 +63,29 @@ function QuadTree.new(lvl, x, y, w, h)
     ---
     -- Determines in which subnode the given coordinates are
     -- contained and returns the corresponding index.
-    -- @param nx
-    -- @param ny
+    -- @param mx - Midpoint along the x-axis of the node.
+    -- @param my - Midpoint along the y-axis of the node.
+    -- @param nx - The x-Coordinate to check.
+    -- @param ny - The y-Coordinate to check.
     --
-    local function determineIndex(nx, ny)
-        if nx <= midX and ny <= midY then
+    local function determineIndex(mx, my, nx, ny)
+        if nx <= mx and ny <= my then
             return NW;
-        elseif nx <= midX and ny > midY then
+        elseif nx <= mx and ny > my then
             return SW;
-        elseif nx > midX and ny <= midY then
+        elseif nx > mx and ny <= my then
             return NE;
-        elseif nx > midX and ny > midY then
+        elseif nx > mx and ny > my then
             return SE;
         end
     end
 
-    ----
+    --- -
     -- Divides the current node and creates four subnodes
     -- if they haven't been created yet.
     --
-    local function divide()
-        local nw = w * 0.5;
-        local nh = h * 0.5;
-        local nx = x;
-        local ny = y;
-
+    local function divide(x, y, w, h)
+        local nx, ny, nw, nh = x, y, w * 0.5, h * 0.5;
         if not nodes then
             nodes = {};
             nodes[NW] = QuadTree.new(level + 1, nx, ny, nw, nh);
@@ -103,6 +105,7 @@ function QuadTree.new(lvl, x, y, w, h)
     -- impact on FPS so use with caution.
     --
     function self:debugDraw()
+        love.graphics.setColor(255, 255, 255, 50);
         love.graphics.rectangle('line', x, y, w, h);
         love.graphics.print(#objects == 0 and '' or #objects, x + 1, y + 1);
         if split then
@@ -110,6 +113,7 @@ function QuadTree.new(lvl, x, y, w, h)
                 nodes[i]:debugDraw();
             end
         end
+        love.graphics.setColor(255, 255, 255, 255);
     end
 
     ---
@@ -141,7 +145,7 @@ function QuadTree.new(lvl, x, y, w, h)
     function self:insert(obj, nx, ny)
         -- If the node is already split add it to one of its children.
         if split then
-            nodes[determineIndex(nx, ny)]:insert(obj, nx, ny);
+            nodes[determineIndex(mx, my, nx, ny)]:insert(obj, nx, ny);
             return;
         end
 
@@ -151,14 +155,14 @@ function QuadTree.new(lvl, x, y, w, h)
         -- If the amount of objects surpasses the maximum amount allowed,
         -- the node is split and the objects are redistributed among the
         -- subnodes.
-        if #objects > MAX_OBJECTS then
-            if level < MAX_LEVELS then
-                divide();
+        if #objects > maxObjects then
+            if level < maxLevels then
+                divide(x, y, w, h);
 
                 local ox, oy;
                 for i = 1, #objects do
                     ox, oy = objects[i]:getPosition();
-                    nodes[determineIndex(ox, oy)]:insert(objects[i], ox, oy);
+                    nodes[determineIndex(mx, my, ox, oy)]:insert(objects[i], ox, oy);
                     objects[i] = nil;
                 end
             end
@@ -172,12 +176,63 @@ function QuadTree.new(lvl, x, y, w, h)
     --
     function self:retrieve(nx, ny)
         if split then
-            return nodes[determineIndex(nx, ny)]:retrieve(nx, ny);
+            return nodes[determineIndex(mx, my, nx, ny)]:retrieve(nx, ny);
         end
         return objects;
     end
 
+    ---
+    -- Sets the dimensions of the node.
+    -- @param nw
+    -- @param nh
+    --
+    function self:updateDimensions(nx, ny, nw, nh)
+        x, y, w, h = nx, ny, nw, nh;
+        mx, my = x + (w * 0.5), y + (h * 0.5);
+
+        local nx, ny, nw, nh = x, y, w * 0.5, h * 0.5;
+        if nodes then
+            nodes[NW]:updateDimensions(nx, ny, nw, nh);
+            nodes[NE]:updateDimensions(nx + nw, ny, nw, nh);
+            nodes[SW]:updateDimensions(nx, ny + nh, nw, nh);
+            nodes[SE]:updateDimensions(nx + nw, ny + nh, nw, nh);
+        end
+    end
+
     return self;
+end
+
+-- ------------------------------------------------
+-- Setters
+-- ------------------------------------------------
+
+---
+-- Set the maximum depth of the tree.
+-- @param nmax
+--
+function QuadTree.setMaxLevel(nmax)
+    maxLevels = nmax;
+end
+
+---
+-- Set the maximum amount of objects allowed in
+-- the same node.
+-- @param nmax
+--
+function QuadTree.setMaxObjects(nmax)
+    maxObjects = nmax;
+end
+
+-- ------------------------------------------------
+-- Getters
+-- ------------------------------------------------
+
+function QuadTree.getMaxLevel()
+    return maxLevels;
+end
+
+function QuadTree.getMaxObjects()
+    return maxObjects;
 end
 
 return QuadTree;
